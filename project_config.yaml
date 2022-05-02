@@ -1,0 +1,52 @@
+# List samples here
+samples:
+    - HG00438
+    - HG00621
+    - HG00673
+    - HG00735
+    - HG00741
+
+samples_subset:
+    - HG00438
+    - HG00621
+    - HG00673
+    - HG00735
+    - HG00741
+
+
+samples_csv:
+    HG00438,HG00621,HG00673,HG00735,HG00741
+
+reference_sample: control_sample_name
+min_insertion_length: 100
+max_distance_to_reference_insertion: 50
+min_mapq: 20
+min_detected_inclusion_length: 50
+
+base_dir:
+    /path/to/working/folder/
+
+assembly_folder:
+    /path/to/workding/folder/
+
+repbase:
+    repbase_db/permisive_rebase.fa
+
+minimap2_preset:
+    map-ont
+
+meryl_dir:
+   /path/to/Winnowmap/bin/meryl
+
+winnow_dir:
+   /path/to/Winnowmap/bin/winnowmap
+
+reference_all:
+    GRCh38.fa
+
+telomere_filter:
+    utils/hg38_telomeres.tsv
+
+centromere_filter:
+    utils/hg38_centromeres.tsv
+

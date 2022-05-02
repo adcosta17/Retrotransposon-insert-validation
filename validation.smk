@@ -29,10 +29,6 @@ rule all_modified_fastq:
 	input:
 		expand("{s}/fastq_inserted/{s}.insert_annotation.tsv", s=config["samples"])
 
-rule all_metrics:
-	input:
-		expand("{s}/metrics/{s}.metrics.tsv", s=config["samples"])
-
 rule all_short_read_fastq:
 	input:
 		expand("{s}/illumina/{s}.p1.fastq.gz", s=config["samples_subset"])
@@ -195,13 +191,13 @@ rule all_deletion_fastq_and_alignments:
 #        expand("{s}/{s}.reads_mapped_to.combined.bam.bai",s=config["samples_plus_extra"])
 
 
-rule all_hg0002_deletion_fastq:
-	input:
-		expand("{s}/fastq_with_deletions/HG0002.{i}.fastq.gz", i=config["counts"], s=config["samples"])
+#rule all_hg0002_deletion_fastq:
+#	input:
+#		expand("{s}/fastq_with_deletions/HG0002.{i}.fastq.gz", i=config["counts"], s=config["samples"])
 
 include: "rules/mapping.smk"
 include: "rules/rt_winnow_validation.smk"
 include: "rules/short_read.smk"
 include: "rules/deletion_validation.smk"
-include: "rules/hg0002.smk"
+#include: "rules/hg0002.smk"
 

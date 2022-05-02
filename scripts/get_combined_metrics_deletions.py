@@ -21,7 +21,7 @@ def get_soft_clip(cigartuples, reverse=False):
     return count
 
 
-def get_depth(input_prefix, genome_id, bam_folder, pos, insert_size):
+def get_depth(input_prefix, genome_id, bam_folder, pos, insert_size, samples):
     chrom = pos.split(':')[0]
     start = str(int(pos.split(':')[1].split('-')[0]) - 50)
     end = str(int(pos.split(':')[1].split('-')[1]) + 50)
@@ -31,7 +31,7 @@ def get_depth(input_prefix, genome_id, bam_folder, pos, insert_size):
     hp1_soft = 0
     hp2_soft = 0
     hp_all_soft = 0
-    for sample in ["Sample3", "Sample5"]:
+    for sample in samples:
         sam_reader = pysam.AlignmentFile(input_prefix+"/"+genome_id+"/"+sample+"/"+bam_folder+"/"+sample+".sorted.phased.bam")
         tmp_sam_reader = sam_reader.fetch(region=chrom+":"+start+'-'+end)
         for record in tmp_sam_reader:
@@ -82,6 +82,7 @@ parser.add_argument('--bam-folder', required=True)
 parser.add_argument('--annotation-suffix', default=".annotation.tsv")
 parser.add_argument('--annotation-folder', default="fastq_with_deletions")
 parser.add_argument('--suffix', default=".all.read_insertions.repbase_annotated.mapq_ct_filtered.ma_filtered.ref_filtered_haplotype_checked.updated_annoation.tsv")
+parser.add_argument('--samples', default="Sample3,Sample5")
 parser.add_argument('--sv-folder', default="structural_variants")
 parser.add_argument('--sniffles-suffix', default=".sniffles.vcf")
 parser.add_argument('--cutesv-suffix', default=".cuteSV.vcf")
@@ -127,6 +128,7 @@ tn_position = 0
 fn_rows = defaultdict(list)
 
 for genome_id in args.id_list.split(','):
+    tmp = genome_id
     #print(genome_id)
     reads_to_check = defaultdict(int)
     tp = defaultdict(str)
@@ -141,7 +143,7 @@ for genome_id in args.id_list.split(','):
     pat_inserts = defaultdict(IntervalTree)
     all_inserts = defaultdict(IntervalTree)
     count = 0
-    with open(genome_id+"/assembly_subset/"+genome_id+".mat.insertions.repbase_annotated.tsv", 'r') as in_mat:
+    with open(tmp+"/assembly_subset/"+tmp+".mat.insertions.repbase_annotated.tsv", 'r') as in_mat:
         for line in in_mat:
             if count == 0:
                 count =1 
@@ -155,7 +157,7 @@ for genome_id in args.id_list.split(','):
                 continue
             mat_inserts[chrom][start:end] = 1
     count = 0
-    with open(genome_id+"/assembly_subset/"+genome_id+".pat.insertions.repbase_annotated.tsv", 'r') as in_pat:
+    with open(tmp+"/assembly_subset/"+tmp+".pat.insertions.repbase_annotated.tsv", 'r') as in_pat:
         for line in in_pat:
             if count == 0:
                 count =1 
@@ -169,7 +171,7 @@ for genome_id in args.id_list.split(','):
                 continue
             pat_inserts[chrom][start:end] = 1
     count = 0
-    with open(genome_id+"/assembly_analysis/"+genome_id+".insertions.repbase_annotated.tsv", 'r') as in_all:
+    with open(tmp+"/assembly_analysis/"+tmp+".insertions.repbase_annotated.tsv", 'r') as in_all:
         for line in in_all:
             if count == 0:
                 count =1 
@@ -182,8 +184,8 @@ for genome_id in args.id_list.split(','):
 
     # Open up the annotation file
     truth_set = {}
-    truth_set["Sample3"] = defaultdict(list)
-    truth_set["Sample5"] = defaultdict(list)
+    for sample in args.samples.split(','):
+        truth_set[sample] = defaultdict(list)
     truth_set["Novel"] = defaultdict(list)
     truth_set["HotSpot"] = defaultdict(list)
     truth_positions = defaultdict(IntervalTree)
@@ -200,11 +202,7 @@ for genome_id in args.id_list.split(','):
                 count = 1
                 continue
             row = line.strip().split('\t')
-            sample = ""
-            if "3" in row[0]:
-                sample = "Sample3"
-            else:
-                sample = "Sample5"
+            sample = row[0]
             chrom = row[4].split(':')[0]
             start = int(row[4].split(':')[1].split('-')[0])
             end = int(row[4].split(':')[1].split('-')[1])
@@ -214,7 +212,7 @@ for genome_id in args.id_list.split(','):
             truth_set[sample][row[1]] = row
             count_per_pos[row[4]] += int(row[5])
             if row[4] not in depth_per_pos:
-                hp1, hp2, overall, hp1_soft, hp2_soft, hp_all_soft = get_depth(args.input_prefix, genome_id, args.bam_folder, row[4], abs(int(row[3])-int(row[2])))
+                hp1, hp2, overall, hp1_soft, hp2_soft, hp_all_soft = get_depth(args.input_prefix, genome_id, args.bam_folder, row[4], abs(int(row[3])-int(row[2])), args.samples.split(','))
                 depth_per_pos[row[4]] = [overall, hp1, hp2, hp_all_soft, hp1_soft, hp2_soft]
     with open(genome_id+"/"+args.annotation_folder+"/"+genome_id+args.annotation_suffix, 'r') as in_an:
         for line in in_an:
@@ -238,7 +236,7 @@ for genome_id in args.id_list.split(','):
 #                continue
 #            row = line.strip().split('\t')
 #            control_inserts_per_chrom[row[0]][int(row[1])-500:int(row[2])+500] = 1
-    for sample in ["Sample3", "Sample5"]:
+    for sample in args.samples.split(','):
         with open(args.input_prefix+"/"+genome_id+"/"+sample+"/"+args.folder+"/"+sample+args.suffix, 'r') as in_data:
             count = 0
             for line in in_data:
@@ -305,7 +303,7 @@ for genome_id in args.id_list.split(','):
     # Look for reads in truth set not found in
     true_fn = defaultdict(list)
     missed_fn = defaultdict(str)
-    for sample in ["Sample3", "Sample5"]:
+    for sample in args.samples.split(','):
         for read in truth_set[sample]:
             if read in tp:
                 #print(read)

@@ -101,18 +101,6 @@ rule extract_read_insertions_with_assembly_positions:
     shell:
         "python {params.script} --input-tsv {input.tsv} --input-mat-paf {input.mat_paf} --input-pat-paf {input.pat_paf} --input-fastq {params.fastq} > {output}"
 
-rule get_metrics_for_run:
-    input:
-        "{sample}/fastq_inserted/{sample}.insert_annotation.tsv"
-    output:
-        "{sample}/metrics/{sample}.metrics.tsv"
-    threads: 1
-    params:
-        memory_per_thread = "24G",
-        script = srcdir("../scripts/get_metrics.py")
-    shell:
-        "python {params.script} --input-annotation {input} --input-prefix {config[run_folder]} --id {wildcards.sample} --folder winnow_read_analysis > {output}"
-
 
 rule get_spliced_fastqs:
     input:
