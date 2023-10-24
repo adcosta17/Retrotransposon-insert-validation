@@ -1,0 +1,92 @@
+chroms:
+  - chr1
+  - chr2
+  - chr3
+  - chr4
+  - chr5
+  - chr6
+  - chr7
+  - chr8
+  - chr9
+  - chr10
+  - chr11
+  - chr12
+  - chr13
+  - chr14
+  - chr15
+  - chr16
+  - chr17
+  - chr18
+  - chr19
+  - chr20
+  - chr21
+  - chr22
+  - chrX
+  - chrY
+
+read_lens:
+  - 2000
+  - 4000
+  - 6000
+  - 8000
+  - 10000
+  - 12000
+  - 15000
+  - 20000
+  - 30000
+  - 50000
+
+samples:
+  - HG00438
+  - HG00621
+  - HG00673
+  - HG00735
+  - HG00741
+
+coverage:
+  - sample_coverage
+
+fastq:
+  /path/to/input/fastq.gz
+
+reference:
+  /path/to/ref.fa
+
+xtea_dir:
+  /path/to/xTea/
+
+tldr_dir:
+  /path/to/tldr/
+
+base_dir:
+  /path/to/working/dir
+
+somrit_dir:
+  /path/to/somrit/
+
+repbase:
+  /path/to/somrit/repeats.fa
+
+centromeres:
+  /utils/hg38_centromeres.tsv
+
+telomeres:
+  /utils/hg38_telomeres.tsv
+
+full_sample:
+  sample_name
+
+mat_fa:
+  /path/to/maternal_assembly.fa
+
+pat_fa:
+  /path/to/paternal_assembly.fa
+
+pbsim_model:
+  /path/to/pbsim/model/file
+
+chrom_lengths:
+  /utils/GRCh38_chromosome_sizes.tsv
+
+run_dir:
+  /path/to/pipeline/run/directory/
