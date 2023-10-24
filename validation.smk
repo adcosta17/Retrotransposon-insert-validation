@@ -178,6 +178,10 @@ rule all_deletion_fastq_and_alignments:
         expand("{s}/assembly_subset/{s}.pat.insertions.repbase_annotated.tsv",s=config["samples"]),
         expand("{s}/assembly_analysis/{s}.insertions.repbase_annotated.tsv", s=config["samples"])
 
+rule all_deletion_fastqs_control_test:
+	input:
+		expand("{s}/fastq_with_deletions/Control.fastq.gz",s=config["samples"]),
+		expand("{s}/fastq_with_deletions/Test.fastq.gz",s=config["samples"])
 
 #rule all_mapped_other_assembly:
 #	input:

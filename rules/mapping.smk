@@ -26,6 +26,12 @@ def get_first_fastq(wildcards):
 def get_third_fastq(wildcards):
     return wildcards.sample+"/fastq/"+wildcards.sample+"_3_Guppy_4.0.11_prom.fastq.gz"
 
+def get_control_fastq(wildcards):
+    return wildcards.sample+"/fastq/control.fastq.gz"
+
+def get_test_fastq(wildcards):
+    return wildcards.sample+"/fastq/test.fastq.gz"
+
 def get_fifth_fastq(wildcards):
     return wildcards.sample+"/fastq/"+wildcards.sample+"_5_Guppy_4.0.11_prom.fastq.gz"
 
@@ -551,6 +557,76 @@ rule map_pat_subset_to_ref:
         """
         minimap2 -t {threads} -ax asm20 {params.ref_to_use} {input.pat} | samtools sort -o {output}
         """
+
+rule map_reads_to_pat_subset_control:
+    input:
+        pat="{sample}/assembly_subset/{sample}.pat.subset.fa",
+        first_reads_fastq= get_control_fastq
+    output:
+        first=protected("{sample}/reads_assembly_subset_mapped/{sample}.pat.sorted.control.bam")
+    params:
+        memory_per_thread="10G",
+        script=srcdir("../scripts/paf_to_sam.py"),
+        tmp_paf="{sample}/reads_assembly_subset_mapped/{sample}.pat.sorted.control.paf.gz",
+        tmp_sam="{sample}/reads_assembly_subset_mapped/{sample}.pat.sorted.control.sam"
+    threads: 20
+    shell:
+        """
+        minimap2 -t {threads} -ax map-ont {input.pat} {input.first_reads_fastq} | samtools sort -o {output.first}
+        """
+
+rule map_reads_to_pat_subset_test:
+    input:
+        pat="{sample}/assembly_subset/{sample}.pat.subset.fa",
+        first_reads_fastq= get_test_fastq
+    output:
+        first=protected("{sample}/reads_assembly_subset_mapped/{sample}.pat.sorted.test.bam")
+    params:
+        memory_per_thread="10G",
+        script=srcdir("../scripts/paf_to_sam.py"),
+        tmp_paf="{sample}/reads_assembly_subset_mapped/{sample}.pat.sorted.test.paf.gz",
+        tmp_sam="{sample}/reads_assembly_subset_mapped/{sample}.pat.sorted.test.sam"
+    threads: 20
+    shell:
+        """
+        minimap2 -t {threads} -ax map-ont {input.pat} {input.first_reads_fastq} | samtools sort -o {output.first}
+        """
+
+
+rule map_reads_to_mat_subset_control:
+    input:
+        mat="{sample}/assembly_subset/{sample}.mat.subset.fa",
+        first_reads_fastq= get_control_fastq
+    output:
+        first=protected("{sample}/reads_assembly_subset_mapped/{sample}.mat.sorted.control.bam")
+    params:
+        memory_per_thread="10G",
+        script=srcdir("../scripts/paf_to_sam.py"),
+        tmp_paf="{sample}/reads_assembly_subset_mapped/{sample}.mat.sorted.control.paf.gz",
+        tmp_sam="{sample}/reads_assembly_subset_mapped/{sample}.mat.sorted.control.sam"
+    threads: 20
+    shell:
+        """
+        minimap2 -t {threads} -ax map-ont {input.mat} {input.first_reads_fastq} | samtools sort -o {output.first}
+        """
+
+rule map_reads_to_mat_subset_test:
+    input:
+        mat="{sample}/assembly_subset/{sample}.mat.subset.fa",
+        first_reads_fastq= get_test_fastq
+    output:
+        first=protected("{sample}/reads_assembly_subset_mapped/{sample}.mat.sorted.test.bam")
+    params:
+        memory_per_thread="10G",
+        script=srcdir("../scripts/paf_to_sam.py"),
+        tmp_paf="{sample}/reads_assembly_subset_mapped/{sample}.mat.sorted.test.paf.gz",
+        tmp_sam="{sample}/reads_assembly_subset_mapped/{sample}.mat.sorted.test.sam"
+    threads: 20
+    shell:
+        """
+        minimap2 -t {threads} -ax map-ont {input.mat} {input.first_reads_fastq} | samtools sort -o {output.first}
+        """
+
 
 
 rule map_reads_to_pat_subset_1:

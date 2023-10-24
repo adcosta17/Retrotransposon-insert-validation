@@ -250,10 +250,10 @@ for genome_id in args.id_list.split(','):
                     #reads_to_check[row[3]] = 1
                     # have a read that we care about
                     #insert_size = truth_set[sample][row[3]][5]
-                    #repeat_type = truth_set[sample][row[3]][6]
+                    repeat_type = truth_set[sample][row[3]][7]
                     if row[8] == "PASS":
                         # Check more here
-                        tp[row[3]] = 1#insert_size+"\t"+repeat_type+"\t"+str(read_depth[row[3]])
+                        tp[row[3]] = repeat_type#insert_size+"\t"+repeat_type+"\t"+str(read_depth[row[3]])
                     else:
                         #print(row)
                         hp = int(float(row[18]))
@@ -263,7 +263,7 @@ for genome_id in args.id_list.split(','):
                         if (count_per_pos[truth_set[sample][row[3]][4]]+soft_count)/depth_to_use > 0.3:
                             tn[row[3]] = 1
                         else:
-                            fn[row[3]] = 1#insert_size+"\t"+repeat_type+"\t"+str(read_depth[row[3]])
+                            fn[row[3]] = repeat_type#insert_size+"\t"+repeat_type+"\t"+str(read_depth[row[3]])
                             #print(line.strip())
                             fn_rows[row[3]].append(row)
                 else:
@@ -312,8 +312,8 @@ for genome_id in args.id_list.split(','):
                 #if (count_per_pos[truth_set[sample][read][4]]+depth_per_pos[truth_set[sample][read][4]][3])/depth_per_pos[truth_set[sample][read][4]][0] > 0.3:
                 #    continue
                 #insert_size = truth_set[sample][read][5]
-                #repeat_type = truth_set[sample][read][6]
-                missed_fn[read] = 1#insert_size+"\t"+repeat_type+"\t"+str(read_depth[read])
+                repeat_type = truth_set[sample][read][7]
+                missed_fn[read] = repeat_type#insert_size+"\t"+repeat_type+"\t"+str(read_depth[read])
             #reads_to_check[read] = 1
             if read in fn:
                 true_fn[read] = fn_rows[read]
@@ -349,6 +349,12 @@ for genome_id in args.id_list.split(','):
     tp_hotspot = 0
     fn_novel = 0
     fn_hotspot = 0
+    tp_line = 0
+    tp_alu = 0
+    fn_line = 0
+    fn_alu = 0
+    fn_line_missed = 0
+    fn_alu_missed = 0
     fn_novel_missed = 0
     fn_hotspot_missed = 0
     for read in tp:
@@ -357,6 +363,10 @@ for genome_id in args.id_list.split(','):
             tp_novel += 1
         else:
             tp_hotspot +=1
+        if "LINE" in tp[read]:
+            tp_line += 1
+        elif "SINE" in tp[read]:
+            tp_alu += 1
         #insert_size = int(tp[read].split('\t')[0])
         #if insert_size < 500:
         #    tp_insert_size["Small"] += 1
@@ -422,6 +432,14 @@ for genome_id in args.id_list.split(','):
             fn_hotspot += 1
             if read in missed_fn:
                 fn_hotspot_missed += 1
+        if "LINE" in combined_fn[read]:
+            fn_line += 1
+            if read in missed_fn:
+                fn_line_missed += 1
+        elif "SINE" in combined_fn[read]:
+            fn_alu += 1
+            if read in missed_fn:
+                fn_alu_missed += 1
         #insert_size = int(combined_fn[read].split('\t')[0])
         #if insert_size < 500:
         #    fn_insert_size["Small"] += 1
@@ -491,6 +509,8 @@ print("Missed FN: \t"+str(missed_fn_overall))
 print("TN: \t"+str(len(tn)))
 print("Novel : \t"+str(tp_novel)+"\t"+str(fn_novel)+"\t"+str(fn_novel_missed))
 print("HotSpot : \t"+str(tp_hotspot)+"\t"+str(fn_hotspot)+"\t"+str(fn_hotspot_missed))
+print("LINE: \t"+str(tp_line)+"\t"+str(fn_line)+"\t"+str(fn_line_missed))
+print("Alu: \t"+str(tp_alu)+"\t"+str(fn_alu)+"\t"+str(fn_alu_missed))
 #print("Insert Size: ")
 #print("TP : \t"+"\t".join(tp_insert))
 #print("FP : \t"+"\t".join(fp_insert))

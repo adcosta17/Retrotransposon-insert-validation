@@ -113,6 +113,12 @@ def multiple_families(family_count, read_name, insert_position):
         return True
     return False
 
+def get_families(family_count, read_name, insert_position):
+    annotation = []
+    for item in family_count[read_name][insert_position]:
+        annotation.append(item)
+    return(",".join(annotation))
+
 parser = argparse.ArgumentParser( description='Annotate .read_insertions.tsv with mappings of the insertion sequence to repbase')
 parser.add_argument('--input', required=True)
 parser.add_argument('--minimap2-paf', required=False)
@@ -143,7 +149,7 @@ with open(args.input) as csvfile:
             if str(row_args[4]+"-"+row_args[5]) in read_to_best_annotation[row_args[3]]:
                 annotation = read_to_best_annotation[row_args[3]][str(row_args[4]+"-"+row_args[5])]
                 if multiple_families(family_count, row_args[3], str(row_args[4]+"-"+row_args[5])):
-                    annotation.name = "ambiguous_mapping"
+                    annotation.name = get_families(family_count,row_args[3], str(row_args[4]+"-"+row_args[5]))
         # Get total amount of bases covered by this annotation
         mapped_total = get_mapped_total(annotation)
         pass_fail = row_args[8]

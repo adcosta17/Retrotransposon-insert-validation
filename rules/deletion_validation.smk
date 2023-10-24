@@ -7,6 +7,12 @@ def get_read_first_fastq(wildcards):
 def get_read_third_fastq(wildcards):
     return wildcards.sample+"/fastq/"+wildcards.sample+"_3_Guppy_4.0.11_prom.fastq.gz"
 
+def get_control_fastq(wildcards):
+    return wildcards.sample+"/fastq/control.fastq.gz"
+
+def get_test_fastq(wildcards):
+    return wildcards.sample+"/fastq/test.fastq.gz"
+
 def get_read_fifth_fastq(wildcards):
     return wildcards.sample+"/fastq/"+wildcards.sample+"_5_Guppy_4.0.11_prom.fastq.gz"
 
@@ -375,4 +381,35 @@ rule get_deletion_fastqs:
     shell:
         """
         python {params.script} --output-fasta-folder {params.output_folder} --reads-to-ignore {output.reads} --input-fastq-1 {params.first_fastq} --input-fastq-3 {params.third_fastq} --input-fastq-5 {params.fifth_fastq} --sample {params.sample} --mat-ref-inserts {input.mat_inserts} --pat-ref-inserts {input.pat_inserts} --mat-bam-1 {input.reads_mat_1_bam} --pat-bam-1 {input.reads_pat_1_bam} --mat-bam-3 {input.reads_mat_3_bam} --pat-bam-3 {input.reads_pat_3_bam} --mat-bam-5 {input.reads_mat_5_bam} --pat-bam-5 {input.reads_pat_5_bam} --centromeres {config[centromere_filter]} > {output.tsv}
+        """
+
+
+rule get_deletion_fastqs_control_test:
+    input:
+        mat_inserts="{sample}/assembly_subset/{sample}.mat.insertions.repbase_annotated.tsv",
+        pat_inserts="{sample}/assembly_subset/{sample}.pat.insertions.repbase_annotated.tsv",
+        reads_mat_control_bam="{sample}/reads_assembly_subset_mapped/{sample}.mat.sorted.control.bam",
+        reads_mat_test_bam="{sample}/reads_assembly_subset_mapped/{sample}.mat.sorted.test.bam",
+        reads_pat_control_bam="{sample}/reads_assembly_subset_mapped/{sample}.pat.sorted.control.bam",
+        reads_pat_test_bam="{sample}/reads_assembly_subset_mapped/{sample}.pat.sorted.test.bam",
+        reads_mat_control_bam_index="{sample}/reads_assembly_subset_mapped/{sample}.mat.sorted.control.bam.bai",
+        reads_mat_test_bam_index="{sample}/reads_assembly_subset_mapped/{sample}.mat.sorted.test.bam.bai",
+        reads_pat_control_bam_index="{sample}/reads_assembly_subset_mapped/{sample}.pat.sorted.control.bam.bai",
+        reads_pat_test_bam_index="{sample}/reads_assembly_subset_mapped/{sample}.pat.sorted.test.bam.bai"
+    output:
+        tsv="{sample}/fastq_with_deletions/{sample}.ct.annotation.tsv",
+        fc="{sample}/fastq_with_deletions/Control.fastq",
+        ft="{sample}/fastq_with_deletions/Test.fastq",
+        reads="{sample}/fastq_with_deletions/{sample}.ct.reads_to_ignore.txt"
+    threads: 1
+    params:
+        script=srcdir("../scripts/get_deletion_fastqs_control_test.py"),
+        memory_per_thread="64G",
+        control_fastq=get_control_fastq,
+        test_fastq=get_test_fastq,
+        sample=get_sample,
+        output_folder=get_out_folder
+    shell:
+        """
+        python {params.script} --output-fasta-folder {params.output_folder} --reads-to-ignore {output.reads} --input-fastq-control {params.control_fastq} --input-fastq-test {params.test_fastq} --sample {params.sample} --mat-ref-inserts {input.mat_inserts} --pat-ref-inserts {input.pat_inserts} --mat-bam-control {input.reads_mat_control_bam} --pat-bam-control {input.reads_pat_control_bam} --mat-bam-test {input.reads_mat_test_bam} --pat-bam-test {input.reads_pat_test_bam} --centromeres {config[centromere_filter]} > {output.tsv}
         """
