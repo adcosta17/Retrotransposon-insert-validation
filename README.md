@@ -44,22 +44,7 @@ Once the deletion fastqs have been generated, the main retrotransposon insertion
 python scripts/get_combined_metrics_deletions.py --input-prefix <path/to/rt_insert_pipeline_run_folder> --id-list <samples,csv,list> --folder winnow_realign_read_analysis --bam-folder winnow_realign
 ```
 
-### False Positive Rate Validation
 
-In addition to the deletion validation we ran the pipeline on the original unmodified fastqs for each of the HPRC samples listed above as well as data from [HG0002](https://s3-us-west-2.amazonaws.com/human-pangenomics/index.html?prefix=working/HPRC_PLUS/HG002/). For the HPRC samples listed above we used the same setup to run the pipeline, one control and two tests,  but did not make any modifications to the fastqs. For HG0002 we combined two downloaded fastqs to generate a coverage of ~ 100x and then randomly split this into smaller fastqs of roughly equal coverage, shown below, before running the pipeline on the fastq splits selecting one as a control and the other as tests.  
-
-As all the samples run were assumed to be normal samples free of any somatic variation, any insertions detected in the test fastqs are false positives. 
-
-#### HG0002
-
-The fastqs downloaded from the HPRC are quite large and need to be downsampled to generate multiple fastqs of equal lower coverage.
-
-```sh
-# Generate 3 fastqs of 20x each from a larger fastq of 60x
-python scripts/get_HG002_fastqs.py --input-fastq <input_HG0002.fastq> --output-prefix <output_folder> --coverage 20 --test-number 3 --total-coverage 60
-```
-
-Once downsampled fastqs have been generated we can create a folder for the sample at the requested coverage and  copy the downsampled fastqs to the fastq subfolder. 
 
 
 
